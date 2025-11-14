@@ -1,0 +1,53 @@
+{
+  "name": "todoapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "postinstall": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:39175/git/bardulah/TODOapp"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@auth/prisma-adapter": "^2.11.1",
+    "@google/generative-ai": "^0.24.1",
+    "@prisma/client": "^6.19.0",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.4",
+    "@types/react-dom": "^19.2.3",
+    "ai": "^5.0.93",
+    "autoprefixer": "^10.4.22",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.553.0",
+    "next": "^16.0.3",
+    "next-auth": "^5.0.0-beta.30",
+    "openai": "^6.9.0",
+    "postcss": "^8.5.6",
+    "prisma": "^6.19.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4.1.17",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5.9.3",
+    "zod": "^4.1.12"
+  }
+}
