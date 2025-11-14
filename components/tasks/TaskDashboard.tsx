@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Sparkles, ListTodo } from 'lucide-react'
+import { Plus, Sparkles, ListTodo, FolderOpen, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import TaskList from './TaskList'
 import TaskForm from './TaskForm'
 import AIAssistant from './AIAssistant'
+import CategoryManager from './CategoryManager'
 
 export interface Task {
   id: string
@@ -37,8 +39,10 @@ export default function TaskDashboard() {
   const [loading, setLoading] = useState(true)
   const [showTaskForm, setShowTaskForm] = useState(false)
   const [showAIAssistant, setShowAIAssistant] = useState(false)
+  const [showCategoryManager, setShowCategoryManager] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [filter, setFilter] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     fetchTasks()
@@ -109,6 +113,17 @@ export default function TaskDashboard() {
     }
   }
 
+  // Filter tasks by search query
+  const filteredTasks = tasks.filter(task => {
+    if (!searchQuery) return true
+    const query = searchQuery.toLowerCase()
+    return (
+      task.title.toLowerCase().includes(query) ||
+      task.description?.toLowerCase().includes(query) ||
+      task.category?.name.toLowerCase().includes(query)
+    )
+  })
+
   const stats = {
     total: tasks.length,
     completed: tasks.filter(t => t.completed).length,
@@ -155,14 +170,13 @@ export default function TaskDashboard() {
       </div>
 
       {/* Actions */}
-      <div className="flex gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Button
           onClick={() => {
             setEditingTask(null)
             setShowTaskForm(true)
           }}
           size="lg"
-          className="flex-1"
         >
           <Plus className="mr-2 h-5 w-5" />
           New Task
@@ -171,10 +185,17 @@ export default function TaskDashboard() {
           onClick={() => setShowAIAssistant(true)}
           variant="outline"
           size="lg"
-          className="flex-1"
         >
           <Sparkles className="mr-2 h-5 w-5" />
           AI Assistant
+        </Button>
+        <Button
+          onClick={() => setShowCategoryManager(true)}
+          variant="outline"
+          size="lg"
+        >
+          <FolderOpen className="mr-2 h-5 w-5" />
+          Categories
         </Button>
       </div>
 
@@ -199,36 +220,55 @@ export default function TaskDashboard() {
         />
       )}
 
-      {/* Filters */}
-      <div className="flex gap-2">
-        <Button
-          variant={filter === 'all' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setFilter('all')}
-        >
-          All
-        </Button>
-        <Button
-          variant={filter === 'todo' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setFilter('todo')}
-        >
-          Todo
-        </Button>
-        <Button
-          variant={filter === 'in_progress' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setFilter('in_progress')}
-        >
-          In Progress
-        </Button>
-        <Button
-          variant={filter === 'completed' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setFilter('completed')}
-        >
-          Completed
-        </Button>
+      {/* Category Manager Modal */}
+      {showCategoryManager && (
+        <CategoryManager
+          onClose={() => setShowCategoryManager(false)}
+        />
+      )}
+
+      {/* Search and Filters */}
+      <div className="space-y-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search tasks..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            variant={filter === 'all' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter('all')}
+          >
+            All
+          </Button>
+          <Button
+            variant={filter === 'todo' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter('todo')}
+          >
+            Todo
+          </Button>
+          <Button
+            variant={filter === 'in_progress' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter('in_progress')}
+          >
+            In Progress
+          </Button>
+          <Button
+            variant={filter === 'completed' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter('completed')}
+          >
+            Completed
+          </Button>
+        </div>
       </div>
 
       {/* Task List */}
@@ -250,9 +290,16 @@ export default function TaskDashboard() {
             </Button>
           </CardContent>
         </Card>
+      ) : filteredTasks.length === 0 && searchQuery ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-muted-foreground">No tasks match your search "{searchQuery}"</p>
+          </CardContent>
+        </Card>
       ) : (
         <TaskList
-          tasks={tasks}
+          tasks={filteredTasks}
           onEdit={handleEditTask}
           onDelete={handleDeleteTask}
           onToggleComplete={handleToggleComplete}

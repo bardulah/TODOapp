@@ -22,6 +22,12 @@ interface TaskFormProps {
   onTaskCreated: () => void
 }
 
+interface Category {
+  id: string
+  name: string
+  color: string
+}
+
 export default function TaskForm({ task, onClose, onTaskCreated }: TaskFormProps) {
   const [title, setTitle] = useState(task?.title || '')
   const [description, setDescription] = useState(task?.description || '')
@@ -29,9 +35,27 @@ export default function TaskForm({ task, onClose, onTaskCreated }: TaskFormProps
   const [status, setStatus] = useState(task?.status || 'todo')
   const [dueDate, setDueDate] = useState(task?.dueDate ? task.dueDate.split('T')[0] : '')
   const [timeEstimate, setTimeEstimate] = useState(task?.timeEstimate?.toString() || '')
+  const [categoryId, setCategoryId] = useState(task?.categoryId || '')
+  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(false)
   const [aiParsing, setAiParsing] = useState(false)
   const [aiRewriting, setAiRewriting] = useState(false)
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories')
+      if (response.ok) {
+        const data = await response.json()
+        setCategories(data)
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,6 +69,7 @@ export default function TaskForm({ task, onClose, onTaskCreated }: TaskFormProps
         status,
         dueDate: dueDate || undefined,
         timeEstimate: timeEstimate ? parseInt(timeEstimate) : undefined,
+        categoryId: categoryId || undefined,
       }
 
       const url = task ? `/api/tasks/${task.id}` : '/api/tasks'
@@ -216,6 +241,30 @@ export default function TaskForm({ task, onClose, onTaskCreated }: TaskFormProps
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            {/* Category */}
+            <div className="space-y-2">
+              <Label htmlFor="category">Category (optional)</Label>
+              <Select value={categoryId} onValueChange={setCategoryId}>
+                <SelectTrigger id="category">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No category</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: category.color }}
+                        />
+                        {category.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
