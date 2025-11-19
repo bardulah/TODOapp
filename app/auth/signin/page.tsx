@@ -25,29 +25,77 @@ export default async function SignInPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <form
-            action={async () => {
+            action={async (formData: FormData) => {
               'use server'
-              await signIn('github', { redirectTo: '/' })
+              const name = formData.get('name') as string
+              if (name) {
+                await signIn('credentials', {
+                  name,
+                  redirectTo: '/'
+                })
+              }
             }}
+            className="space-y-3"
           >
+            <div>
+              <label htmlFor="name" className="text-sm font-medium">
+                Enter your name to get started
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="Your name"
+                required
+                className="w-full mt-1 px-3 py-2 border rounded-md"
+              />
+            </div>
             <Button type="submit" className="w-full" size="lg">
-              Sign in with GitHub
+              Start Using App
             </Button>
           </form>
 
-          <form
-            action={async () => {
-              'use server'
-              await signIn('google', { redirectTo: '/' })
-            }}
-          >
-            <Button type="submit" variant="outline" className="w-full" size="lg">
-              Sign in with Google
-            </Button>
-          </form>
+          {process.env.GITHUB_ID && process.env.GITHUB_SECRET && (
+            <>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+
+              <form
+                action={async () => {
+                  'use server'
+                  await signIn('github', { redirectTo: '/' })
+                }}
+              >
+                <Button type="submit" variant="outline" className="w-full" size="lg">
+                  Sign in with GitHub
+                </Button>
+              </form>
+            </>
+          )}
+
+          {process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && (
+            <form
+              action={async () => {
+                'use server'
+                await signIn('google', { redirectTo: '/' })
+              }}
+            >
+              <Button type="submit" variant="outline" className="w-full" size="lg">
+                Sign in with Google
+              </Button>
+            </form>
+          )}
 
           <div className="text-center text-sm text-muted-foreground">
-            <p>Sign in to start managing your tasks with AI assistance</p>
+            <p>Start managing your tasks with AI assistance</p>
           </div>
         </CardContent>
       </Card>
